@@ -1,0 +1,70 @@
+$(document).ready(function() {
+    $('#participantsTable').DataTable({
+        'searching': false, 
+        'lengthChange': false, 
+        'pagingType': 'simple',
+        'dom': 'rt',
+    });
+});
+
+function isValidInput(input) { 
+        let regex = /^[а-яА-ЯёЁ, ]+$/;
+        return regex.test(input);
+}
+
+function generatePoints() {
+    return $.ajax({
+        url: 'generate_points.php',
+        type: 'GET',
+        dataType: 'text'
+    });
+}
+
+function showErrorModal(errorMessage) {
+    $('#errorModalBody').html(errorMessage);
+    $('#errorModal').modal('show');
+}
+function addParticipant(name, points) {
+    console.log(name, points);
+    var row = $('<tr></tr>');
+    var id = $('<td></td>').text(++currentId);
+    var nameCell = $('<td></td>').text(name);
+    var pointsCell = $('<td></td>').text(points);
+    row.append(id, nameCell, pointsCell);
+    $('#participantsTable').append(row);
+}
+
+var currentId = 0;
+
+function addParticipants(){
+    let participants = $('#participantsInput').val();
+    
+    if(participants == ''){
+        alert('Поле участники пустое');
+        return;
+    }
+    $.ajax({
+    url: 'generate_points.php',
+    type: 'POST',
+    data: {participants: participants},
+    dataType: 'json',
+    success: function(data){
+        $('#participantsInput').val('');
+        data.forEach(function(item){
+            console.log(item);
+            $('#participantsTable').append('<tr><td>'+item.id+'</td><td>'+item.name+'</td><td>'+item.score+'</td></tr>');
+        });
+    },
+    error: function(jqXHR, textStatus, errorThrown){
+        alert('Ошибка при добавлении участников');
+    }
+});
+}
+
+document.addEventListener("keydown", function(event) {
+        var obj = document.getElementById("addButton");
+        if (event.key === "Enter") {
+            obj.click();
+        }
+});
+

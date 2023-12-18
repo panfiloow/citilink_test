@@ -1,0 +1,8 @@
+.header-cell:hover {
+  text-decoration: underline;
+  color: blue;
+  cursor: pointer;
+}
+.container{
+  overflow-x:auto;
+}

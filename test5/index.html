@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Олимпиада</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/script.js"></script>
+    <link rel="stylesheet" href="css/style.css">  
+</head>
+<body>
+    <div class="container-fluid">
+        <h2 class="text-center">Олимпиада</h2>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Участники</span>
+            </div>
+            <input type="text" class="form-control" id="participantsInput" placeholder="Введите имена через запятую">
+            <div class="input-group-append">
+                <button class="btn btn-primary" id="addButton">Добавить</button>
+            </div>
+        </div>
+        <table class="table table-bordered text-center invisible" id="participantsTable" data-sorted-column-index="0" data-sort-direction="asc">
+            <thead>
+                <tr>
+                    <th class="header-cell" onclick="sortTable(0)"> ID </th>
+                    <th class="header-cell" onclick="sortTable(1)"> Имя </th>
+                    <th class="header-cell" onclick="sortTable(2)"> Очки </th>
+                </tr>
+            </thead>
+            <tbody id="participantsTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Модальное окно -->
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Ошибка</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="errorModalBody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+

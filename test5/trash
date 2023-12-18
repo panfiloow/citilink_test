@@ -1,0 +1,335 @@
+<?php
+header('Content-Type: application/json');
+
+$participantsInput = $_POST['participants'];
+$participantsArray = explode(',', $participantsInput);
+
+$response = [];
+
+if(!$participantsArray || !$participantsArray[0]) {
+    $response['success'] = false;
+    $response['message'] = 'Please enter the names of the participants separated by commas.';
+    echo json_encode($response);
+    exit;
+}
+
+foreach($participantsArray as $name) {
+    $name = trim($name);
+    if(!$name) {
+        continue;
+    }
+    $points = rand(0, 100);
+
+    $stmt = $conn->prepare('INSERT INTO participants (name, points) VALUES (?, ?, ?)');
+    $stmt->bind_param('sss', $name, $points);
+    $stmt->execute();
+
+    $response['participants'][] = [
+        'id' => $stmt->insert_id,
+        'name' => $name,
+        'glasses' => $glasses,
+        'points' => $points
+    ];
+}
+
+$response['success'] = true;
+echo json_encode($response);
+exit;
+?>
+
+
+<script>
+        $(document).ready(function() {
+            $('#addButton').on('click', function() {
+                addParticipants();
+            });
+            $('#participantsInput').on('keypress', function(e) {
+                if(e.which === 13) {
+                    addParticipants();
+                }
+            });
+
+            function addParticipants() {
+                var participants = $('#participantsInput').val();
+                if(!participants) {
+                    $('#errorModalBody').text('Please enter the names of the participants.');
+                    $('#errorModal').modal('show');
+                    return;
+                }
+                $.ajax({
+                    url: 'add_participants.php',
+                    method: 'POST',
+                    data: { participants: participants },
+                    dataType: 'json',
+                    success: function(response) {
+                        if(response.success) {
+                            var participants = response.participants;
+                            for(var i = 0; i < participants.length; i++) {
+                                var participant = participants[i];
+                                $('#participantsTableBody').append('<tr><td>' + participant.id + '</td><td>' + participant.name + '</td><td>'  + participant.points + '</td></tr>');
+                            }
+                            $('#participantsInput').val('');
+                        } else {
+                            $('#errorModalBody').text(response.message);
+                            $('#errorModal').modal('show');
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $('#errorModalBody').text('An error occurred while adding the participants.');
+                        $('#errorModal').modal('show');
+                    }
+                });
+            }
+        });
+    </script>
+
+
+     .input-group {
+     margin-bottom: 10px;
+}
+
+#participantsTable {
+    margin-top: 20px;
+}
+   fnInitComplete : function() {
+            if ($(this).find('tbody tr').length<=1) {
+                $(this).parent().hide();
+            }
+        }
+
+
+
+"oLanguage": {
+            "sInfo": "",
+            "sInfoEmpty": "Нет записей",
+            "sZeroRecords": "",
+            "sEmptyTable": ""
+        }
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Olympics</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .input-group {
+            margin-bottom: 10px;
+        }
+        #participantsTable {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Olympics</h2>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Participants</span>
+            </div>
+            <input type="text" class="form-control" id="participantsInput" placeholder="enter the names of the participants separated by commas">
+            <div class="input-group-append">
+                <button class="btn btn-primary" id="addButton">Add</button>
+            </div>
+        </div>
+        <table class="table table-striped" id="participantsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Glasses</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+            <tbody id="participantsTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="errorModalBody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#addButton').on('click', function() {
+                addParticipants();
+            });
+            $('#participantsInput').on('keypress', function(e) {
+                if(e.which === 13) {
+                    addParticipants();
+                }
+            });
+
+            function addParticipants() {
+                var input = $('#participantsInput').val();
+                if(!participants) {
+                    $('#errorModalBody').text('Please enter the names of the participants.');
+                    $('#errorModal').modal('show');
+                    return;
+                }
+                $.ajax({
+                    url: 'add_participants.php',
+                    method: 'POST',
+                    data: { participants: participants },
+                    dataType: 'json',
+                    success: function(response) {
+                        if(response.success) {
+                            var participants = response.participants;
+                            for(var i = 0; i < participants.length; i++) {
+                                var participant = participants[i];
+                                $('#participantsTableBody').append('<tr><td>' + participant.id + '</td><td>' + participant.name + '</td><td>' + participant.glasses + '</td><td>' + participant.points + '</td></tr>');
+                            }
+                            $('#participantsInput').val('');
+                        } else {
+                            $('#errorModalBody').text(response.message);
+                            $('#errorModal').modal('show');
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $('#errorModalBody').text('An error occurred while adding the participants.');
+                        $('#errorModal').modal('show');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+//add_participants.php
+<?php
+header('Content-Type: application/json');
+
+require_once 'db.php';
+
+$participantsInput = $_POST['participants'];
+$participantsArray = explode(',', $participantsInput);
+
+$response = [];
+
+if(!$participantsArray || !$participantsArray[0]) {
+    $response['success'] = false;
+    $response['message'] = 'Please enter the names of the participants separated by commas.';
+    echo json_encode($response);
+    exit;
+}
+
+foreach($participantsArray as $name) {
+    $name = trim($name);
+    if(!$name) {
+        continue;
+    }
+
+    $glasses = rand(0, 1) == 1 ? 'Yes' : 'No';
+    $points = rand(0, 100);
+
+    $stmt = $conn->prepare('INSERT INTO participants (name, glasses, points) VALUES (?, ?, ?)');
+    $stmt->bind_param('sss', $name, $glasses, $points);
+    $stmt->execute();
+
+    $response['participants'][] = [
+        'id' => $stmt->insert_id,
+        'name' => $name,
+        'glasses' => $glasses,
+        'points' => $points
+    ];
+}
+
+$response['success'] = true;
+echo json_encode($response);
+exit;
+?>
+
+
+//db.php
+<?php
+$servername = "localhost";
+$username = "username";
+$password = "password";
+$dbname = "olympics";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
+
+
+//CREATE TABLE participants
+CREATE TABLE participants (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    glasses ENUM('Yes', 'No') NOT NULL,
+    points INT NOT NULL
+);
+
+
+
+
+
+
+
+
+
+function insertParticipants(){
+
+    var table = document.getElementById("participantsTable");
+    var hasInvisibleClass = table.classList.contains("invisible");
+    var input = document.getElementById("participantsInput");
+    var inputValue = input.value;
+    if(hasInvisibleClass){
+        var obj = document.getElementById("participantsTable");
+        obj.className = obj.className.replace(/\binvisible\b/,'');
+    }
+    if (inputValue === "" && !hasInvisibleClass) {
+        showErrorModal("Введите участников.")
+        return;
+    }
+    if (isValidInput(inputValue)) {
+        var participantNames = $('#participantsInput').val().trim();
+        var namesArray = participantNames.split(',');
+        var pointsArray = [];
+        for (var i = 0; i < namesArray.length; i++) {
+            var name = namesArray[i];
+            generatePoints().done(function(points) {
+               pointsArray.push(points);
+            });
+            console.log(name, pointsArray, pointsArray[0]);
+        } 
+        pointsArray.forEach(function(point) {
+            console.log(point);
+        });
+
+        $('#participantsInput').val('');
+        // удаление содержимого инпута
+        let res = participantsInput.value.replace(/^\s+|\s+$/g, '');
+        participantsInput.value = '';
+    }else if(!hasInvisibleClass){
+        showErrorModal("Можно использовать только Кириллицу и запятую !")
+        return;
+    }
+}

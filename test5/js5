@@ -1,0 +1,40 @@
+function sortTable(table, col, reverse) {
+    var tb = table.tBodies[0],
+        tr = Array.prototype.slice.call(tb.rows, 0),
+        i;
+    reverse = -((+reverse) || -1);
+    tr = tr.sort(function (a, b) {
+        var td1 = a.cells[col],
+            td2 = b.cells[col],
+            sortVal1, sortVal2;
+    console.log(table.tHead.rows[0].cells[col]);
+        // Если столбец является числовым, то преобразуем значения к числу
+        if (table.tHead.rows[0].cells[col].className == 'number') {
+            sortVal1 = parseFloat(td1.textContent);
+            sortVal2 = parseFloat(td2.textContent);
+            console.log("12312");
+        } else {
+            sortVal1 = td1.textContent.trim();
+            sortVal2 = td2.textContent.trim();
+        }
+
+        return reverse * (sortVal1 > sortVal2 ? 1 : (sortVal1 < sortVal2 ? -1 : 0));
+    });
+    for (i = 0; i < tr.length; ++i) tb.appendChild(tr[i]);
+}
+
+$(document).on('click', 'th.sortable', function () {
+    var th = $(this),
+        table = th.closest('table'),
+        col = th.index();
+    var hasAscClass = th[0].classList.contains("asc");
+    if(hasAscClass){
+        sortTable(table[0], col, 1);
+        th.removeClass('asc');
+        th.addClass('desc')
+    }else{
+        sortTable(table[0], col, -1);
+        th.removeClass('desc');
+        th.addClass('asc');
+    }
+});

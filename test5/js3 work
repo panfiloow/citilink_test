@@ -1,0 +1,78 @@
+async function generateScore(id, name) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: 'generate_score.php',
+            type: 'GET',
+            data: { id: id, name: name },
+            success: function (data) {
+                resolve(data);
+            },
+            error: function (xhr, status, error) {
+                reject('Не удалось сгенерировать очки для участника ' + name);
+            }
+        });
+    });
+}
+
+let participantCounter = 1;
+
+function addParticipants() {
+    var table = document.getElementById("participantsTable");
+    var hasInvisibleClass = table.classList.contains("invisible");
+    if (hasInvisibleClass) {
+        var obj = document.getElementById("participantsTable");
+        obj.className = obj.className.replace(/\binvisible\b/,'');
+    }
+    const participantsInput = document.getElementById('participantsInput');
+    const participants = participantsInput.value.split(',');
+
+    for (let participant of participants) {
+        participant = participant.trim();
+        addParticipantToTable(participantCounter, participant);
+        participantCounter++;
+    }
+
+    participantsInput.value = '';
+}
+
+async function addParticipantToTable(id, name) {
+    try {
+        const score = await generateScore(id, name);
+        const participantsTableBody = document.getElementById('participantsTableBody');
+        const newRow = participantsTableBody.insertRow();
+        const newIdCell = newRow.insertCell();
+        const newNameCell = newRow.insertCell();
+        const newScoreCell = newRow.insertCell();
+
+        newIdCell.textContent = id;
+        newNameCell.textContent = name;
+        newScoreCell.textContent = score;
+    } catch (error) {
+        showErrorModal("Не удалось записать данные в таблицу");
+    }
+}
+
+function isValidInput(input) { 
+        let regex = /^[а-яА-ЯёЁ, ]+$/;
+        return regex.test(input);
+}
+
+function showErrorModal(errorMessage) {
+    $('#errorModalBody').html(errorMessage);
+    $('#errorModal').modal('show');
+}
+
+$(document).ready(function () {
+    $('#participantsTable').DataTable({
+        'searching': false, 
+        'pagingType': 'simple',
+        'dom': 'rt',
+    });
+});
+
+document.addEventListener("keydown", function(event) {
+        var obj = document.getElementById("addButton");
+        if (event.key === "Enter") {
+            obj.click();
+        }
+});
